@@ -1,0 +1,15 @@
+# Go
+bin/
+obj/
+*.exe
+*.out
+*.test
+
+# Node/WebUI (if needed later)
+node_modules/
+dist/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
