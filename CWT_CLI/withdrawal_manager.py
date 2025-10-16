@@ -85,6 +85,7 @@ class WithdrawalManager:
                     f"CWT Login Failed: {automator_name}",
                     f"Failed to log into {automator_name}. Reason: {task.message}"
                 )
+                automator.close() # Close automator even on login failure
         except Exception as e:
             task.message = f"An error occurred: {e}"
             logger.error(f"An error occurred during withdrawal from {automator_name}: {e}")

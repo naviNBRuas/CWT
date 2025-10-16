@@ -74,7 +74,7 @@ jobs:
         context: .
         platforms: linux/amd64,linux/arm64
         push: true
-        tags: your_docker_username/cwt-tool:latest
+        tags: your_docker_username/cwt-tool:latest, your_docker_username/cwt-tool:${{ github.ref_name }}
 
   build-executables:
     runs-on: ${{ matrix.os }}
