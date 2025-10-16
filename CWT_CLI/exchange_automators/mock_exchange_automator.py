@@ -7,7 +7,7 @@ import time
 import logging
 
 from .base_automator import BaseAutomator
-from ..config import get_chrome_binary_location, get_credential, get_headless_mode
+from ..config import get_chrome_binary_location, get_credential, get_headless_mode, get_headless_mode
 
 logger = logging.getLogger(__name__)
 

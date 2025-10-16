@@ -8,7 +8,7 @@ import logging
 import os
 
 from .base_automator import BaseAutomator
-from ..config import get_browser_profile_path, get_chrome_binary_location, get_credential
+from ..config import get_browser_profile_path, get_chrome_binary_location, get_credential, get_headless_mode
 
 logger = logging.getLogger(__name__)
 
