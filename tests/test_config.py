@@ -1,6 +1,6 @@
 import unittest
 import os
-from CWT_CLI.config import load_config, get_config_value
+from CWT_CLI.config import load_config, get_config_value, ConfigError
 import configparser
 
 class TestConfig(unittest.TestCase):
