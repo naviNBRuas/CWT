@@ -29,8 +29,8 @@ class TestConfig(unittest.TestCase):
         self.assertTrue(config.has_section("EXCHANGE_TEST"))
 
     def test_load_config_file_not_found(self):
-        config = load_config("non_existent_config.ini")
-        self.assertIsNone(config)
+        with self.assertRaises(ConfigError):
+            load_config("non_existent_config.ini")
 
     def test_get_config_value_existing(self):
         config = load_config(self.test_config_path)
