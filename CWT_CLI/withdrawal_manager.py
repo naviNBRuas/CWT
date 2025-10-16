@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from typing import List, Dict, Any
 
 from .config import get_config_value
+from .notification_manager import NotificationManager
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +34,7 @@ class WithdrawalManager:
             logger.error("Main withdrawal address not found in DEFAULT section of config. Exiting.")
             raise ValueError("Main withdrawal address is required.")
         self._load_automators()
+        self.notification_manager = NotificationManager(config)
 
     def _load_automators(self):
         for section in self.config.sections():
@@ -64,16 +66,32 @@ class WithdrawalManager:
                     logger.info(f"Withdrawal from {automator_name} successful (simulated).")
                     task.status = "COMPLETED"
                     task.message = "Withdrawal successful"
+                    self.notification_manager.send_email(
+                        f"CWT Withdrawal Success: {task.amount} {task.currency} from {automator_name}",
+                        f"Successfully withdrew {task.amount} {task.currency} from {automator_name} to {task.destination_address}."
+                    )
                     return True
                 else:
                     task.message = "Withdrawal failed at automator level"
                     logger.error(f"Withdrawal from {automator_name} failed (simulated). {task.message}")
+                    self.notification_manager.send_email(
+                        f"CWT Withdrawal Failed: {task.amount} {task.currency} from {automator_name}",
+                        f"Failed to withdraw {task.amount} {task.currency} from {automator_name} to {task.destination_address}. Reason: {task.message}"
+                    )
             else:
                 task.message = "Login failed"
                 logger.error(f"Login failed for {automator_name}. {task.message}")
+                self.notification_manager.send_email(
+                    f"CWT Login Failed: {automator_name}",
+                    f"Failed to log into {automator_name}. Reason: {task.message}"
+                )
         except Exception as e:
             task.message = f"An error occurred: {e}"
             logger.error(f"An error occurred during withdrawal from {automator_name}: {e}")
+            self.notification_manager.send_email(
+                f"CWT Error: {automator_name}",
+                f"An unexpected error occurred during withdrawal from {automator_name}. Reason: {task.message}"
+            )
         finally:
             automator.close()
         return False

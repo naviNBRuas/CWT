@@ -8,14 +8,14 @@ import logging
 import os
 
 from .base_automator import BaseAutomator
-from ..config import get_browser_profile_path, get_chrome_binary_location, get_credential, get_headless_mode
+from ..config import get_browser_profile_path, get_chrome_binary_location, get_credential
 
 logger = logging.getLogger(__name__)
 
 class MetamaskAutomator(BaseAutomator):
     METAMASK_EXTENSION_ID = "nkbihfbeogaeaoehlefnkodbefgpgknn"
 
-    def __init__(self, config, exchange_name, window_position=(2000, 0)): # Default to headed for Metamask
+    def __init__(self__(self, config, exchange_name, window_position=(2000, 0)): # Default to headed for Metamask
         headless = get_headless_mode(config, exchange_name, default_headless=False) # Metamask default to headed
         chrome_binary_location = get_chrome_binary_location(config, exchange_name)
         super().__init__(config, exchange_name, headless=headless, window_position=window_position, chrome_binary_location=chrome_binary_location)
@@ -111,13 +111,39 @@ class MetamaskAutomator(BaseAutomator):
                 self.logger.error("Metamask not unlocked. Cannot proceed with withdrawal.")
                 return False
 
-            # --- Placeholder for actual Metamask withdrawal logic ---
-            # Navigate to send screen, fill recipient, amount, confirm
-            # This is highly dependent on Metamask UI and might change frequently.
-            self.logger.warning("Metamask withdrawal logic is a placeholder and needs detailed implementation.")
-            self.logger.info(f"Simulating withdrawal of {amount} {currency} to {address} from Metamask ({self.exchange_name}).")
-            time.sleep(5) # Simulate transaction time
+            # --- Simulate Transaction Initiation ---
+            self.driver.get(f"chrome-extension://{self.METAMASK_EXTENSION_ID}/home.html#send") # Navigate to send screen
+            if not self._switch_to_metamask_window():
+                return False
+
+            # Enter recipient address
+            recipient_input = WebDriverWait(self.driver, 30).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "input[placeholder='0x...']"))
+            )
+            recipient_input.send_keys(address)
+            time.sleep(1) # Simulate user typing
+
+            # Enter amount
+            amount_input = self.driver.find_element(By.CSS_SELECTOR, "input[data-testid='currency-input']")
+            amount_input.send_keys(str(amount))
+            time.sleep(1)
+
+            # Click Next button
+            next_button = self.driver.find_element(By.CSS_SELECTOR, "button[data-testid='page-container-footer-next']")
+            next_button.click()
+
+            # --- Simulate Transaction Confirmation ---
+            # Wait for confirmation screen
+            confirm_button = WebDriverWait(self.driver, 30).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "button[data-testid='page-container-footer-next']")) # This is often the same button for confirm
+            )
+            confirm_button.click()
+
+            self.logger.info(f"Simulated withdrawal of {amount} {currency} to {address} from Metamask ({self.exchange_name}).")
             return True
+        except (TimeoutException, NoSuchElementException) as e:
+            self.logger.error(f"Metamask withdrawal elements not found or timed out: {e}")
+            return False
         except Exception as e:
             self.logger.error(f"Metamask withdrawal failed: {e}")
             return False
@@ -130,12 +156,24 @@ class MetamaskAutomator(BaseAutomator):
                 self.logger.error("Metamask not unlocked. Cannot retrieve balance.")
                 return 0.0
 
-            # --- Placeholder for actual Metamask balance retrieval logic ---
-            # Navigate to asset, get balance
-            self.logger.warning("Metamask balance retrieval logic is a placeholder and needs detailed implementation.")
-            balance = 5.0 # Simulated balance
+            # --- Simulate Balance Retrieval ---
+            self.driver.get(f"chrome-extension://{self.METAMASK_EXTENSION_ID}/home.html")
+            if not self._switch_to_metamask_window():
+                return False
+
+            # Assuming we are on the main assets view, find the balance for the currency
+            # This locator is highly dependent on Metamask UI
+            balance_element = WebDriverWait(self.driver, 30).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, ".currency-display-component__text")) # Example locator for total balance
+            )
+            balance_text = balance_element.text.replace(currency, '').strip() # Remove currency symbol
+            balance = float(balance_text) # Convert to float
+
             self.logger.info(f"Retrieved balance for {currency} from Metamask ({self.exchange_name}): {balance} (simulated).")
             return balance
+        except (TimeoutException, NoSuchElementException) as e:
+            self.logger.error(f"Metamask balance elements not found or timed out: {e}")
+            return 0.0
         except Exception as e:
             self.logger.error(f"Metamask balance retrieval failed: {e}")
             return 0.0
