@@ -6,14 +6,18 @@ import time
 import logging
 
 from .base_automator import BaseAutomator
+from ..config import get_chrome_binary_location, get_credential, get_headless_mode
 
 logger = logging.getLogger(__name__)
 
 class ExampleAutomator(BaseAutomator):
-    def __init__(self, config, exchange_name):
-        super().__init__(config, exchange_name)
-        self.driver = None
+    def __init__(self, config, exchange_name, window_position=(2000, 0)):
+        headless = get_headless_mode(config, exchange_name, default_headless=True)
+        chrome_binary_location = get_chrome_binary_location(config, exchange_name)
+        super().__init__(config, exchange_name, headless=headless, window_position=window_position, chrome_binary_location=chrome_binary_location)
         self.base_url = self.config.get(exchange_name, 'base_url', fallback='http://example.com')
+        self.username = get_credential(config, exchange_name, 'username')
+        self.password = get_credential(config, exchange_name, 'password')
 
     def _initialize_driver(self):
         if self.driver is None:
