@@ -35,7 +35,7 @@ jobs:
 
     - name: Run unit tests
       run: |
-        pytest tests/
+        PYTHONPATH=$PYTHONPATH:$(pwd) pytest tests/
 
   build-docker-image:
     runs-on: ubuntu-latest
