@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 class MetamaskAutomator(BaseAutomator):
     METAMASK_EXTENSION_ID = "nkbihfbeogaeaoehlefnkodbefgpgknn"
 
-    def __init__(self__(self, config, exchange_name, window_position=(2000, 0)): # Default to headed for Metamask
+    def __init__(self, config, exchange_name, headless=False, window_position=(2000, 0)): # Default to headed for Metamask
         headless = get_headless_mode(config, exchange_name, default_headless=False) # Metamask default to headed
         chrome_binary_location = get_chrome_binary_location(config, exchange_name)
         super().__init__(config, exchange_name, headless=headless, window_position=window_position, chrome_binary_location=chrome_binary_location)

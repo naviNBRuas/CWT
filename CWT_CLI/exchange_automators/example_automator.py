@@ -11,7 +11,7 @@ from ..config import get_chrome_binary_location, get_credential, get_headless_mo
 logger = logging.getLogger(__name__)
 
 class ExampleAutomator(BaseAutomator):
-    def __init__(self, config, exchange_name, window_position=(2000, 0)):
+    def __init__(self, config, exchange_name, headless=True, window_position=(2000, 0)):
         headless = get_headless_mode(config, exchange_name, default_headless=True)
         chrome_binary_location = get_chrome_binary_location(config, exchange_name)
         super().__init__(config, exchange_name, headless=headless, window_position=window_position, chrome_binary_location=chrome_binary_location)
