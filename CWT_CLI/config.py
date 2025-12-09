@@ -130,38 +130,3 @@ def validate_config(config):
                 raise ConfigError(f"'amount' for section [{section}] is not a valid number.")
 
     logger.info("Configuration validated successfully.")
-
-def validate_config(config):
-    # Validate DEFAULT section
-    main_withdrawal_address = get_config_value(config, "DEFAULT", "main_withdrawal_address")
-    if not main_withdrawal_address:
-        raise ConfigError("'main_withdrawal_address' is missing in the [DEFAULT] section or CWT_MAIN_WITHDRAWAL_ADDRESS environment variable.")
-
-    # Validate each automator section
-    for section in config.sections():
-        if section.startswith("EXCHANGE_") or section.endswith("_WALLET"):
-            automator_type = get_config_value(config, section, 'type')
-            if not automator_type:
-                raise ConfigError(f"'type' is missing for section [{section}].")
-            
-            # Basic validation for credentials (username/password) if applicable
-            if automator_type not in ["MetamaskAutomator"]:
-                username = get_credential(config, section, 'username')
-                password = get_credential(config, section, 'password')
-                if not username or not password:
-                    logger.warning(f"Username or password missing for section [{section}]. Ensure they are set via config or environment variables.")
-            else: # Metamask specific validation
-                password = get_credential(config, section, 'password')
-                if not password:
-                    raise ConfigError(f"'password' is missing for Metamask wallet [{section}].")
-
-            currency = get_config_value(config, section, 'currency')
-            amount = get_config_value(config, section, 'amount')
-            if not currency or not amount:
-                logger.warning(f"Currency or amount missing for section [{section}].")
-            try:
-                if amount: float(amount) # Check if amount is a valid float
-            except ValueError:
-                raise ConfigError(f"'amount' for section [{section}] is not a valid number.")
-
-    logger.info("Configuration validated successfully.")

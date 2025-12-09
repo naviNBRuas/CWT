@@ -7,7 +7,7 @@ import time
 import logging
 
 from .base_automator import BaseAutomator
-from ..config import get_chrome_binary_location, get_credential, get_headless_mode, get_headless_mode
+from ..config import get_chrome_binary_location, get_credential, get_headless_mode
 
 logger = logging.getLogger(__name__)
 
@@ -19,21 +19,6 @@ class MockExchangeAutomator(BaseAutomator):
         self.base_url = self.config.get(exchange_name, 'base_url', fallback='http://mockexchange.com')
         self.username = get_credential(config, exchange_name, 'username')
         self.password = get_credential(config, exchange_name, 'password')
-
-    def _initialize_driver(self):
-        if self.driver is None:
-            self.logger.info(f"Initializing undetected_chromedriver for {self.exchange_name}...")
-            options = uc.ChromeOptions()
-            # options.add_argument('--headless') # Run in headless mode (no GUI) for server environments
-            options.add_argument('--no-sandbox')
-            options.add_argument('--disable-dev-shm-usage')
-            try:
-                self.driver = uc.Chrome(options=options)
-                self.driver.implicitly_wait(10) # seconds
-                self.logger.info("Driver initialized successfully.")
-            except Exception as e:
-                self.logger.error(f"Failed to initialize undetected_chromedriver: {e}")
-                raise
 
     def login(self):
         self._initialize_driver()
